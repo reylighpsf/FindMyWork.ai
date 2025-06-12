@@ -1,0 +1,9 @@
+fastapi
+uvicorn
+sqlalchemy
+pydantic
+python-jose
+passlib[bcrypt]
+PyMuPDF
+python-multipart
+google-generativeai>=0.3.1

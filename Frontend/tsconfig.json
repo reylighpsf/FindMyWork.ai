@@ -1,0 +1,27 @@
+{
+  "compilerOptions": {
+    "target": "ES2017",
+    "lib": ["dom", "dom.iterable", "esnext"],
+    "allowJs": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "noEmit": true,
+    "esModuleInterop": true,
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "jsx": "preserve",
+    "incremental": true,
+    "plugins": [
+      {
+        "name": "next"
+      }
+    ],
+    "paths": {
+      "@/*": ["./src/*"]
+    }
+  },
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "src/components/Halaman-AI/analisisAI.jsx", "src/components/Halaman-AI/preview.jsx", "src/components/ui/button.jsx", "src/components/features.jsx", "src/app/Halaman-AI/page.jsx", "src/components/Halaman-AI/upload.jsx", "src/components/ui/customcard.jsx", "src/components/ui/input.jsx", "src/components/ui/progress.jsx", "src/components/footer.jsx", "src/components/header.jsx", "src/components/hero.jsx", "src/components/navbar.jsx"],
+  "exclude": ["node_modules"]
+}
