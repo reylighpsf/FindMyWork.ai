@@ -21,7 +21,13 @@ type InputProps = {
   onChange: (value: string) => void;
 };
 
-const InputField = ({ icon, type, placeholder, value, onChange }: InputProps) => (
+const InputField = ({
+  icon,
+  type,
+  placeholder,
+  value,
+  onChange,
+}: InputProps) => (
   <div className="relative">
     <input
       type={type}
@@ -41,7 +47,11 @@ function getErrorMessage(error: unknown): string {
   return "Terjadi kesalahan saat login.";
 }
 
-export default function LoginModal({ isOpen, onClose, onSwitchToRegister }: Props) {
+export default function LoginModal({
+  isOpen,
+  onClose,
+  onSwitchToRegister,
+}: Props) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const modalRef = useRef<HTMLDivElement>(null);
@@ -64,7 +74,8 @@ export default function LoginModal({ isOpen, onClose, onSwitchToRegister }: Prop
 
     setLoading(true);
     try {
-      const res = await fetch("http://localhost:8000/auth/login", {
+      // Changed from localhost URL to relative URL
+      const res = await fetch("/auth/login", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -90,7 +101,7 @@ export default function LoginModal({ isOpen, onClose, onSwitchToRegister }: Prop
       setLoading(false);
     }
   };
-
+  
   return (
     <div
       className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 px-4"
@@ -108,7 +119,9 @@ export default function LoginModal({ isOpen, onClose, onSwitchToRegister }: Prop
         </button>
 
         <div className="w-full md:w-1/2 p-8 md:p-12 bg-white text-gray-900">
-          <h2 className="text-2xl md:text-3xl font-bold text-center mb-6">Masuk</h2>
+          <h2 className="text-2xl md:text-3xl font-bold text-center mb-6">
+            Masuk
+          </h2>
 
           <div className="space-y-4">
             <InputField

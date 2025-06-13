@@ -24,18 +24,24 @@ export default function ChatbotWidget() {
     setLoading(true);
 
     try {
-      const response = await fetch("http://localhost:8000/api/chat", {
+      // Menggunakan URL relatif untuk akses API
+      const response = await fetch("/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ message: input }),
       });
 
-      if (!response.ok) throw new Error("Server error");
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error("Chat API error:", errorText);
+        throw new Error("Server error");
+      }
 
       const data = await response.json();
       const botMsg: Message = { from: "bot", text: data.reply };
       setMessages((prev) => [...prev, botMsg]);
     } catch (err) {
+      console.error("Chat error:", err);
       setMessages((prev) => [
         ...prev,
         { from: "bot", text: "Maaf, terjadi kesalahan. Coba lagi nanti." },
@@ -123,7 +129,10 @@ export default function ChatbotWidget() {
           {/* Input Area */}
           <div className="p-3 bg-white">
             <div className="bg-gradient-to-br from-blue-900 to-teal-500 rounded-full flex items-center px-4 py-2">
-              <button className="text-white text-xl mr-3" aria-label="Attach file">
+              <button
+                className="text-white text-xl mr-3"
+                aria-label="Attach file"
+              >
                 📎
               </button>
               <input

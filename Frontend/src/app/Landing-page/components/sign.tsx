@@ -68,7 +68,8 @@ export default function RegisterModal({ isOpen, onClose, onSwitchToLogin }: Prop
 
     setLoading(true);
     try {
-      const res = await fetch("http://localhost:8000/auth/signup/", {
+      // Changed from absolute HTTP URL to relative URL
+      const res = await fetch("/auth/signup/", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

@@ -19,35 +19,35 @@ export default function ProfilPage() {
   const [newPassword, setNewPassword] = useState("");
   const [securityMessage, setSecurityMessage] = useState("");
 
-  useEffect(() => {
-    const fetchUser = async () => {
-      const token = localStorage.getItem("access_token");
-      if (!token) {
-        setError("Token tidak ditemukan. Silakan login terlebih dahulu.");
-        return;
+useEffect(() => {
+  const fetchUser = async () => {
+    const token = localStorage.getItem("access_token");
+    if (!token) {
+      setError("Token tidak ditemukan. Silakan login terlebih dahulu.");
+      return;
+    }
+
+    try {
+      const res = await fetch("/auth/me", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        setUser(data);
+      } else {
+        setError("Token tidak valid atau sudah kadaluarsa.");
       }
+    } catch (err) {
+      console.error("Gagal memuat data pengguna:", err);
+      setError("Terjadi kesalahan saat memuat data pengguna.");
+    }
+  };
 
-      try {
-        const res = await fetch("http://localhost:8000/auth/me", {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-
-        if (res.ok) {
-          const data = await res.json();
-          setUser(data);
-        } else {
-          setError("Token tidak valid atau sudah kadaluarsa.");
-        }
-      } catch (err) {
-        console.error("Gagal memuat data pengguna:", err);
-        setError("Terjadi kesalahan saat memuat data pengguna.");
-      }
-    };
-
-    fetchUser();
-  }, []);
+  fetchUser();
+}, []);
 
   const handleChangePassword = async () => {
     setSecurityMessage("");
@@ -64,7 +64,7 @@ export default function ProfilPage() {
     }
 
     try {
-      const res = await fetch("http://localhost:8000/auth/change-password", {
+      const res = await fetch("/auth/change-password", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

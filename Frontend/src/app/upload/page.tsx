@@ -38,21 +38,25 @@ export default function UploadPage() {
       const formData = new FormData();
       formData.append("file", selectedFile);
 
-      const response = await fetch("http://localhost:8000/cv/upload_cv/", {
+      const response = await fetch("/cv/upload_cv/", {
         method: "POST",
         body: formData,
       });
 
       if (!response.ok) {
-        throw new Error("Gagal mengunggah atau menganalisis CV.");
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(
+          errorData.detail || "Gagal mengunggah atau menganalisis CV."
+        );
       }
 
       const { cv_text, analysis } = await response.json();
 
-      // Simpan analisis terakhir
-      localStorage.setItem("cv_analysis", JSON.stringify({ analysis, cv_text }));
+      localStorage.setItem(
+        "cv_analysis",
+        JSON.stringify({ analysis, cv_text })
+      );
 
-      // Tambahkan ke riwayat
       const newItem = {
         name: "Analisis CV",
         cvText: cv_text,
@@ -80,13 +84,19 @@ export default function UploadPage() {
       <main className="flex-1 bg-gradient-to-br from-green-100 via-white to-blue-100 p-8">
         <div className="max-w-xl mx-auto mt-10">
           <Link href="/Halaman-AI">
-            <Button className="mb-6 flex items-center gap-1 bg-teal-600 text-white hover:bg-teal-700" variant={undefined} size={undefined}>
+            <Button
+              className="mb-6 flex items-center gap-1 bg-teal-600 text-white hover:bg-teal-700"
+              variant={undefined}
+              size={undefined}
+            >
               <ArrowLeft size={16} /> Kembali
             </Button>
           </Link>
 
           <div className="bg-white p-8 rounded-2xl shadow-lg text-center border-2 border-blue-100">
-            <h2 className="text-xl font-bold text-blue-900 mb-6">Unggah CV Anda</h2>
+            <h2 className="text-xl font-bold text-blue-900 mb-6">
+              Unggah CV Anda
+            </h2>
 
             <div
               className="border-2 border-dashed border-gray-300 rounded-lg p-6 cursor-pointer flex flex-col items-center justify-center gap-2 text-gray-600 mb-4"
@@ -99,7 +109,9 @@ export default function UploadPage() {
                 <>
                   <p>Tarik dan lepaskan file anda</p>
                   <span>atau</span>
-                  <div className="bg-gray-200 text-black px-4 py-1 rounded-md">Pilih file</div>
+                  <div className="bg-gray-200 text-black px-4 py-1 rounded-md">
+                    Pilih file
+                  </div>
                 </>
               )}
               <input
@@ -116,7 +128,10 @@ export default function UploadPage() {
             <Button
               onClick={handleUpload}
               className="bg-gradient-to-r from-blue-700 to-green-500 text-white text-md px-6 py-2 rounded-full shadow"
-              disabled={isUploading} variant={undefined} size={undefined}            >
+              disabled={isUploading}
+              variant={undefined}
+              size={undefined}
+            >
               {isUploading ? "Mengunggah..." : "Unggah"}
             </Button>
           </div>

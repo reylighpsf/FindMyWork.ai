@@ -1,13 +1,12 @@
 from io import BytesIO
 import fitz  # PyMuPDF
-from google import genai
-from google.genai import types
+import google.generativeai as genai
 
 class CVAnalyzer:
     def __init__(self, api_key: str):
         self.api_key = api_key
-        self.client = genai.Client(api_key=api_key)
-        self.model = "gemini-2.0-flash"
+        genai.configure(api_key=api_key)
+        self.model_name = "gemini-2.0-flash" 
 
     def extract_text_from_pdf_bytes(self, file_bytes: bytes) -> str:
         try:
@@ -22,45 +21,57 @@ class CVAnalyzer:
 
     def analyze_cv_text(self, cv_text: str) -> str:
         prompt = (
-                "Lakukan analisis terhadap CV yang dilampirkan dan berikan hasilnya dalam format berikut:\n\n"
-                "1. Ringkasan Profil.\n"
-                "Highlight singkat tentang keahlian utama, pengalaman kerja, dan latar belakang pendidikan.\n"
-                "2. Kecocokan Posisi Kerja.\n"
-                "Rekomendasi lowongan pekerjaan yang cocok berdasarkan pengalaman dan skill pemilik CV, disertai alasan mengapa posisi tersebut cocok (misalnya sesuai dengan skill utama, level pengalaman, atau minat).\n"
-                "3. Rekomendasi Pekerjaan:\n"
-                "a. Carikan 5 posisi pekerjaan yang paling cocok untuk kandidat berdasarkan informasi dari CV.\n"
-                "b. Gunakan sumber terpercaya seperti LinkedIn Jobs, Jobstreet, Kalibrr, Glints, maupun situs resmi perusahaan yang.\n"
-                "c. Sertakan informasi berikut untuk setiap rekomendasi:\n"
-                "    1) Judul Pekerjaan\n"
-                "    2) Perusahaan\n"
-                "    3) Lokasi\n"
-                "    4) Alasan Kecocokan (1–2 kalimat)\n\n"
-                "    5) berikan Tautan Lowongan dari pekerjaan tersebut(berikan URL langsung yang dapat diklik)\n\n"
-                "Note: Jangan ada kata,kalimat, maupun text yang di bold/italic. Rapikan tampilannya agar mudah dibaca.rapikan urutan rekomendasi pekerjaan"
+            "Kamu adalah asisten AI rekrutmen cerdas. Tugasmu adalah membaca dan menganalisis isi dari CV yang diberikan. "
+            "Gunakan pemahaman mendalam terhadap industri kerja, peran pekerjaan, dan tren perekrutan untuk memberikan hasil analisis terbaik. Maksimal 5 pekerjaan "
+            "Output harus disusun secara profesional, informatif, dan mudah dibaca. Jangan gunakan penebalan (bold) atau pemiringan (italic), tanpa === maupun ###, Anda bisa menggunakan scrapping untuk mendapatkan link yang dapat diakses. Jangan gunakan link yang dummy. .\n\n"
+
+            "Gunakan struktur berikut:\n\n"
+
+            "Ringkasan Profil:\n"
+            "- Berikan ringkasan singkat tentang kandidat: bidang keahlian utama, pengalaman kerja yang relevan, pencapaian signifikan (jika ada), dan latar belakang pendidikan.\n"
+            "- Buat ringkasan ringkas namun menyeluruh, maksimal 4–5 kalimat.\n\n"
+
+            "Analisis Kecocokan Posisi:\n"
+            "- Berdasarkan isi CV, tentukan jenis atau kategori pekerjaan yang paling cocok untuk kandidat ini.\n"
+            "- Jelaskan alasan dari rekomendasi tersebut secara logis, misalnya: kesesuaian skill teknis, pengalaman sebelumnya, minat kandidat, atau kombinasi keahlian langka.\n\n"
+
+            "Rekomendasi Pekerjaan:\n"
+            "- Temukan dan tampilkan 5 lowongan pekerjaan yang sangat relevan dengan kandidat.\n"
+            "- Prioritaskan hasil dari sumber tepercaya seperti LinkedIn Jobs, Jobstreet, Glints, Kalibrr, dan situs resmi perusahaan (jika memungkinkan).\n"
+            "- Untuk setiap lowongan, berikan informasi lengkap dengan format berikut:\n"
+            "  1. Judul Pekerjaan\n"
+            "    b. Nama Perusahaan\n"
+            "    c. Lokasi\n"
+            "    d. Alasan Kecocokan (1–2 kalimat yang menjelaskan relevansi lowongan dengan profil kandidat)\n"
+            "    e. Tautan Langsung ke Lowongan (URL aktif dan dapat diklik, jangan dummy link!)\n"
+            "- Pastikan hasilnya disusun bernomor (1 hingga 5) dan konsisten secara format.\n\n"
+
+            "Catatan Tambahan:\n"
+            "- Gunakan bahasa profesional dan lugas.\n"
+            "- Jangan berikan opini personal.\n"
+            "- Jangan masukkan bagian atau informasi tambahan di luar struktur di atas.\n\n"
+
+            "Berikut adalah CV yang harus dianalisis:\n\n"
+            f"{cv_text}"
         )
 
-        contents = [
-               types.Content(
-                     role="user",
-                     parts=[types.Part.from_text(text=prompt + cv_text)],
-            ),
-        ]
-
-        generate_config = types.GenerateContentConfig(
-            response_mime_type="text/plain",
-            temperature=0.7,
-            max_output_tokens=1024,
-        )
-
+        model = genai.GenerativeModel(self.model_name)
+        
         analysis_result = []
         try:
-            for response in self.client.models.generate_content_stream(
-                model=self.model,
-                contents=contents,
-                config=generate_config,
-            ):
-                if response.text:
-                    analysis_result.append(response.text)
+            response = model.generate_content(
+                prompt,
+                generation_config={
+                    "temperature": 0.7,
+                    "max_output_tokens": 1024,
+                },
+                stream=True
+            )
+            
+            for chunk in response:
+                if chunk.text:
+                    analysis_result.append(chunk.text)
+            
             return "".join(analysis_result).strip()
         except Exception as e:
             raise RuntimeError(f"Error dari Gemini API: {str(e)}")

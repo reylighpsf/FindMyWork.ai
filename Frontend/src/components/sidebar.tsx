@@ -45,7 +45,7 @@ export default function Sidebar() {
 
     const fetchUser = async () => {
       try {
-        const res = await fetch("http://localhost:8000/auth/me", {
+        const res = await fetch("/auth/me", {
           headers: {
             Authorization: `Bearer ${storedToken}`,
           },

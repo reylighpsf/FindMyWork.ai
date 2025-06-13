@@ -19,7 +19,7 @@ export default function HomePage() {
     const token = localStorage.getItem("access_token");
 
     if (token) {
-      fetch("http://localhost:8000/auth/me", {
+      fetch("/auth/me", {  
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -29,7 +29,10 @@ export default function HomePage() {
           return res.json();
         })
         .then((data) => setUser(data))
-        .catch(() => setUser(null))
+        .catch((error) => {
+          console.error("Authentication error:", error);
+          setUser(null);
+        })
         .finally(() => setLoading(false));
     } else {
       setLoading(false);
